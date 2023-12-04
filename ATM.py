@@ -1,10 +1,19 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import *
-
+import time
 
 ATM_Home = tk.Tk() # Main window
 ATM_Home.geometry("500x500")
+
+def tick():
+    time_string = time.strftime('%H:%M:%S')
+    Clock.config(text=time_string)
+    Clock.after(100, tick)
+
+Clock = tk.Label(ATM_Home) #Create a label widget
+Clock.place(relx=0.25,rely=0.075, anchor="center")
+tick()
 
 CardInserted = False #Is there a card inserted or not
 InsertedCard = None #The card number of the currently inserted card
