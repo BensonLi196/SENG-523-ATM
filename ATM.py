@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import *
 
 
 ATM_Home = tk.Tk() # Main window
@@ -8,6 +9,7 @@ ATM_Home.geometry("500x500")
 CardInserted = False #Is there a card inserted or not
 InsertedCard = None #The card number of the currently inserted card
 max_allowable_withdraw = 1000 #Maximum allowed for one withdrawal
+CurrentAccount = ["", "", False, 0]
 
 #The amount of bills in the ATM
 five_dollar_bills = 100
@@ -19,7 +21,7 @@ hundred_dollar_bills = 100
 Total = (five_dollar_bills * 5) + (ten_dollar_bills * 10) + (twenty_dollar_bills * 20) + (fifty_dollar_bills & 50) + (hundred_dollar_bills * 100)  #Total amount of money in the ATM
 
 #Pre-loaded accounts. Format: [Card Number, Pin, Status, Balance]
-cards = [["123456", "523", True, "5000.00"], ["789101112", "550", True, "1000.00"], ["1314151617", "511", False, "850.99"]] #List of all card numbers
+cards = [["123456", "523", True, 5000.00], ["789101112", "550", True, 1000.00], ["1314151617", "511", False, 850.99]] #List of all card numbers
 card_nums = ["123456","789101112","1314151617"]
 
 def check_status(card_num):
@@ -39,12 +41,17 @@ def check_pin(card_num, PIN):
         if card_num == cards[i][0]:
             if PIN == cards[i][1]:
                 tk.messagebox.showinfo("Success", "Successful login") #Replace with code that prompts user to enter the amount they wish to withdraw
+                CurrentAccount = cards[i]
+                TopLabel.config(text="Please enter Withdraw Amount") 
+                Withdraw_Amount = tk.Button(ATM_Home, text="Withdraw", command=lambda: withdraw(int(TextBox.get())))
+                Withdraw_Amount.place(relx=0.75,rely=0.825)
             else:
                 tk.messagebox.showinfo("Error!", "Incorrect PIN entered. Please try again.")
 
         #Else statement shouldn't be needed since the card number would have already been checked prior to this function being called
 
         i+=1
+    TextBox.delete(0, END)
 
 
 
@@ -58,8 +65,8 @@ PinBox = tk.Entry()
 
 #Create the welcome page
 
-Welcome_Page = tk.Label(ATM_Home, text="Welcome, please insert card in ATM to continue") #Create a label widget
-Welcome_Page.place(relx=0.5,rely=0.125, anchor="center")
+TopLabel = tk.Label(ATM_Home, text="Welcome, please insert card in ATM to continue") #Create a label widget
+TopLabel.place(relx=0.5,rely=0.125, anchor="center")
 
 
 #Create the Keypad
@@ -93,22 +100,40 @@ def backspace2():
     index = int(TextBox.index(tk.INSERT))- 1
     PinBox.delete(index)
 
+def withdraw(amount):
+
+    if(amount > 1000):
+        tk.messagebox.showinfo("Error", "Amount exceeds maximum withdrawal amount, please enter an amount less than $1000")
+        TextBox.delete(0, END)
+
+    elif(amount % 5 != 0):
+        tk.messagebox.showinfo("Error", "ATM can only dispend $100, $50, $20 and $5 bills, please insert a valid amount")
+        TextBox.delete(0, END)
+
+    if(amount > CurrentAccount[3]):
+        if(amount > Total):
+            tk.messagebox.showinfo("Error", "Sorry, amount exceeds current cash available within ATM")    
+        
+    else: 
+        tk.messagebox.showinfo("Error", "Amount exceeds your balance")
+        TextBox.delete(0, END)
+    
+
 def insert_card(): 
     #Check if card is in database
     
     cardNum = TextBox.get()
     InsertedCard = cardNum
+    TextBox.delete(0, END)
     
     if (cardNum in card_nums) and (check_status(cardNum)):
         
-        Welcome_Page.destroy()
         Insert_Card.destroy()
 
         CurrentUser = tk.Label(ATM_Home, text="Current User:"+InsertedCard) #Create a label widget
-        CurrentUser.place(relx=0.75,rely=0.125, anchor="center")
+        CurrentUser.place(relx=0.75,rely=0.075, anchor="center")
         
-        Pin_Page = tk.Label(ATM_Home, text="Please enter PIN") #Create a label widget
-        Pin_Page.place(relx=0.5,rely=0.125, anchor="center")
+        TopLabel.config(text="Please enter PIN") #Create a label widget
 
         Enter_Pin = tk.Button(ATM_Home, text="Enter", command=lambda: check_pin(InsertedCard, TextBox.get()))
         Enter_Pin.place(relx=0.75,rely=0.825)
@@ -117,10 +142,8 @@ def insert_card():
         tk.messagebox.showinfo("Error", "The card number entered is either invalid or not active. Please enter another card number")
 
 
-
 Insert_Card = tk.Button(ATM_Home, text="Insert Card", command=lambda: insert_card())
 Insert_Card.place(relx=0.75,rely=0.825)
-
 
 
 ATM_Home.mainloop()
