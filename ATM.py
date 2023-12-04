@@ -12,11 +12,11 @@ max_allowable_withdraw = 1000 #Maximum allowed for one withdrawal
 CurrentAccount = ["", "", False, 0]
 
 #The amount of bills in the ATM
-five_dollar_bills = 0
+five_dollar_bills = 100
 ten_dollar_bills = 100
 twenty_dollar_bills = 100
 fifty_dollar_bills = 100
-hundred_dollar_bills = 0
+hundred_dollar_bills = 100
 
 Total = (five_dollar_bills * 5) + (ten_dollar_bills * 10) + (twenty_dollar_bills * 20) + (fifty_dollar_bills & 50) + (hundred_dollar_bills * 100)  #Total amount of money in the ATM
 
@@ -43,8 +43,7 @@ def check_pin(card_num, PIN):
                 tk.messagebox.showinfo("Success", "Successful login") #Replace with code that prompts user to enter the amount they wish to withdraw
                 CurrentAccount = cards[i]
                 TopLabel.config(text="Please enter Withdraw Amount") 
-                Withdraw_Amount = tk.Button(ATM_Home, text="Withdraw", command=lambda: withdraw(int(TextBox.get())))
-                Withdraw_Amount.place(relx=0.75,rely=0.825)
+                Enter_Button.config(text="Withdraw", command=lambda: withdraw(int(TextBox.get())))
             else:
                 tk.messagebox.showinfo("Error!", "Incorrect PIN entered. Please try again.")
 
@@ -63,11 +62,14 @@ TextBox.place(relx=0.3225,rely=0.25)
 PinBox = tk.Entry()
 
 
-#Create the welcome page
+# Create the welcome page
 
 TopLabel = tk.Label(ATM_Home, text="Welcome, please insert card in ATM to continue") #Create a label widget
 TopLabel.place(relx=0.5,rely=0.125, anchor="center")
 
+# Current User
+CurrentUser = tk.Label(ATM_Home, text="Current User:") #Create a label widget
+CurrentUser.place(relx=0.75,rely=0.075, anchor="center")
 
 #Create the Keypad
 
@@ -169,8 +171,16 @@ def withdraw(amount):
     else: 
         tk.messagebox.showinfo("Error", "Amount exceeds your balance")
         TextBox.delete(0, END)
-    
 
+Eject_Card = tk.Button(text="Eject Card", command=lambda: eject())
+Eject_Card.place(relx=0.25,rely=0.825)
+    
+def eject():
+    InsertedCard=None
+    TopLabel.config(text="Welcome, please insert card in ATM to continue")
+    CurrentUser.config(text="Current User:")  # Clear the current user label or reset to initial state
+    Enter_Button.config(text = "Insert Card", command=lambda: insert_card())
+    
 def insert_card(): 
     #Check if card is in database
     
@@ -180,23 +190,18 @@ def insert_card():
     
     if (cardNum in card_nums) and (check_status(cardNum)):
         
-        Insert_Card.destroy()
-
-        CurrentUser = tk.Label(ATM_Home, text="Current User:"+InsertedCard) #Create a label widget
-        CurrentUser.place(relx=0.75,rely=0.075, anchor="center")
+        CurrentUser.config(text="Current User:"+InsertedCard) #Create a label widget
         
         TopLabel.config(text="Please enter PIN") #Create a label widget
 
-        Enter_Pin = tk.Button(ATM_Home, text="Enter", command=lambda: check_pin(InsertedCard, TextBox.get()))
-        Enter_Pin.place(relx=0.75,rely=0.825)
+        Enter_Button.config(text = "Enter", command=lambda: check_pin(InsertedCard, TextBox.get()))
 
     else:
         tk.messagebox.showinfo("Error", "The card number entered is either invalid or not active. Please enter another card number")
 
-
-Insert_Card = tk.Button(ATM_Home, text="Insert Card", command=lambda: insert_card())
-Insert_Card.place(relx=0.75,rely=0.825)
-
+# Create the enter button
+Enter_Button = tk.Button(ATM_Home, text="Insert Card", command=lambda: insert_card())
+Enter_Button.place(relx=0.75,rely=0.825)
 
 ATM_Home.mainloop()
 
