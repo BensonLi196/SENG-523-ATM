@@ -9,7 +9,7 @@ ATM_Home.geometry("500x500")
 CardInserted = False #Is there a card inserted or not
 InsertedCard = None #The card number of the currently inserted card
 max_allowable_withdraw = 1000 #Maximum allowed for one withdrawal
-CurrentAccount = ["", "", False, 0]
+CurrentAccount = 0
 
 #The amount of bills in the ATM
 five_dollar_bills = 100
@@ -17,6 +17,8 @@ ten_dollar_bills = 100
 twenty_dollar_bills = 100
 fifty_dollar_bills = 100
 hundred_dollar_bills = 100
+
+print("$100: %d, $50: %d, $20: %d, $10: %d, $5: %d" % (hundred_dollar_bills, fifty_dollar_bills, twenty_dollar_bills, ten_dollar_bills, five_dollar_bills))
 
 Total = (five_dollar_bills * 5) + (ten_dollar_bills * 10) + (twenty_dollar_bills * 20) + (fifty_dollar_bills & 50) + (hundred_dollar_bills * 100)  #Total amount of money in the ATM
 
@@ -41,7 +43,8 @@ def check_pin(card_num, PIN):
         if card_num == cards[i][0]:
             if PIN == cards[i][1]:
                 tk.messagebox.showinfo("Success", "Successful login") #Replace with code that prompts user to enter the amount they wish to withdraw
-                CurrentAccount = cards[i]
+                CurrentAccount = i
+                print(cards[i])
                 TopLabel.config(text="Please enter Withdraw Amount") 
                 Enter_Button.config(text="Withdraw", command=lambda: withdraw(int(TextBox.get())))
             else:
@@ -104,6 +107,8 @@ def backspace2():
 
 def withdraw(amount):
 
+    global cards
+
     if(amount > 1000):
         tk.messagebox.showinfo("Error", "Amount exceeds maximum single withdrawal amount, please enter an amount less than $1000")
         TextBox.delete(0, END)
@@ -112,53 +117,53 @@ def withdraw(amount):
         tk.messagebox.showinfo("Error", "ATM can only dispend $100, $50, $20, $10 and $5 bills, please insert a valid amount")
         TextBox.delete(0, END)
 
-    if(amount > CurrentAccount[3]):
+    elif(amount <= cards[CurrentAccount][3]):
         # If amount exceeds the total amount of cash in the ATM
         if(amount > Total):
             tk.messagebox.showinfo("Error", "Sorry, amount exceeds current cash available within ATM")    
         else:
             total = amount
-            Total - total
+
+            global five_dollar_bills
+            global ten_dollar_bills 
+            global twenty_dollar_bills 
+            global fifty_dollar_bills 
+            global hundred_dollar_bills
 
             # Get number of $100 bills
             num_of_100 = int(total/100)
             if(hundred_dollar_bills - num_of_100 < 0):
                 num_of_100 = hundred_dollar_bills
-            else:
-                hundred_dollar_bills - num_of_100
-                total = total - 100*num_of_100
+            hundred_dollar_bills = hundred_dollar_bills - num_of_100
+            total = total - 100*num_of_100
 
             # Get number of $50 bills
             num_of_50 = int(total/50)
             if(fifty_dollar_bills - num_of_50 < 0):
                 num_of_50 = fifty_dollar_bills
-            else:
-                fifty_dollar_bills - num_of_50
-                total = total - 50*num_of_50
+            fifty_dollar_bills = fifty_dollar_bills - num_of_50
+            total = total - 50*num_of_50
 
             # Get number of $20 bills
             num_of_20 = int(total/20)
             if(twenty_dollar_bills - num_of_20 < 0):
                 num_of_20 = twenty_dollar_bills
-            else:
-                twenty_dollar_bills - num_of_20
-                total = total - 20*num_of_20
+            twenty_dollar_bills = twenty_dollar_bills - num_of_20
+            total = total - 20*num_of_20
 
             # Get number of $10 bills
             num_of_10 = int(total/10)
             if(ten_dollar_bills - num_of_10 < 0):
                 num_of_10 = ten_dollar_bills
-            else:
-                ten_dollar_bills - num_of_10
-                total = total - 10*num_of_10
+            ten_dollar_bills = ten_dollar_bills - num_of_10
+            total = total - 10*num_of_10
 
             # Get number of $5 bills
             num_of_5 = int(total/5)
             if(five_dollar_bills - num_of_5 < 0):
                 num_of_5 = five_dollar_bills
-            else:
-                five_dollar_bills - num_of_5
-                total = total - 5*num_of_5
+            ten_dollar_bills = five_dollar_bills - num_of_5
+            total = total - 5*num_of_5
             
             # If the ATM lacks enough of certain bills
             if(total != 0):
@@ -167,7 +172,10 @@ def withdraw(amount):
 
             dispensedAmount = "ATM dispensed: %d $100 bills, %d $50 bills, %d $20 blills, %d $10 bills and %d $5 bils" % (num_of_100, num_of_50, num_of_20, num_of_10, num_of_5)
             tk.messagebox.showinfo("Dispensed", dispensedAmount)
-            
+            print("$100: %d, $50: %d, $20: %d, $10: %d, $5: %d" % (hundred_dollar_bills, fifty_dollar_bills, twenty_dollar_bills, ten_dollar_bills, five_dollar_bills))
+
+            cards[CurrentAccount][3] = cards[CurrentAccount][3] - (amount - total)
+            print(cards[CurrentAccount])
     else: 
         tk.messagebox.showinfo("Error", "Amount exceeds your balance")
         TextBox.delete(0, END)
@@ -176,7 +184,11 @@ Eject_Card = tk.Button(text="Eject Card", command=lambda: eject())
 Eject_Card.place(relx=0.25,rely=0.825)
     
 def eject():
+    TextBox.delete(0, END)
+    global InsertedCard
+    global CurrentAccount
     InsertedCard=None
+    CurrentAccount = 0
     TopLabel.config(text="Welcome, please insert card in ATM to continue")
     CurrentUser.config(text="Current User:")  # Clear the current user label or reset to initial state
     Enter_Button.config(text = "Insert Card", command=lambda: insert_card())
