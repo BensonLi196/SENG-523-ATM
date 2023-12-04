@@ -1,22 +1,60 @@
 import tkinter as tk
+from tkinter import messagebox
+
 
 ATM_Home = tk.Tk() # Main window
 ATM_Home.geometry("500x500")
 
-CardInserted = False
+CardInserted = False #Is there a card inserted or not
+InsertedCard = None #The card number of the currently inserted card
+max_allowable_withdraw = 1000 #Maximum allowed for one withdrawal
+
+#The amount of bills in the ATM
+five_dollar_bills = 100
+ten_dollar_bills = 100
+twenty_dollar_bills = 100
+fifty_dollar_bills = 100
+hundred_dollar_bills = 100
+
+Total = (five_dollar_bills * 5) + (ten_dollar_bills * 10) + (twenty_dollar_bills * 20) + (fifty_dollar_bills & 50) + (hundred_dollar_bills * 100)  #Total amount of money in the ATM
 
 #Pre-loaded accounts. Format: [Card Number, Pin, Status, Balance]
-card1 = ["123456", "Card1", True, "5000.00"]
-card2 = ["789101112", "Card2", True, "1000.00"]
-card3 = ["1314151617", "Card3", False, "850.99"]
+cards = [["123456", "523", True, "5000.00"], ["789101112", "550", True, "1000.00"], ["1314151617", "511", False, "850.99"]] #List of all card numbers
+card_nums = ["123456","789101112","1314151617"]
 
-max_allowable_withdraw = 1000
+def check_status(card_num):
+    i = 0
+    while i < len(cards):
+        if card_num == cards[i][0]:
+            if True in cards[i]:
+                return True
+            else:
+                return False
+        i+=1
+
+
+def check_pin(card_num, PIN):
+    i = 0
+    while i < len(cards):
+        if card_num == cards[i][0]:
+            if PIN == cards[i][1]:
+                tk.messagebox.showinfo("Success", "Successful login") #Replace with code that prompts user to enter the amount they wish to withdraw
+            else:
+                tk.messagebox.showinfo("Error!", "Incorrect PIN entered. Please try again.")
+
+        #Else statement shouldn't be needed since the card number would have already been checked prior to this function being called
+
+        i+=1
+
+
 
 #Display Text Box for user to enter card number in
 TextBox = tk.Entry(ATM_Home,width=30)
 TextBox.place(relx=0.3225,rely=0.25)
 
-index = 0; #For the keypad when typing
+
+PinBox = tk.Entry()
+
 
 #Create the welcome page
 
@@ -43,15 +81,47 @@ KeypadButton7 = tk.Button(ATM_Home, text="7", command=lambda: insert_num(7)).pla
 KeypadButton8 = tk.Button(ATM_Home, text="8", command=lambda: insert_num(8)).place(relx=0.5,rely=0.6, anchor="center")
 KeypadButton9 = tk.Button(ATM_Home, text="9", command=lambda: insert_num(9)).place(relx=0.6,rely=0.6, anchor="center")
 KeypadButton0 = tk.Button(ATM_Home, text="0", command=lambda: insert_num(0)).place(relx=0.5,rely=0.7, anchor="center")
+Decimal = tk.Button(ATM_Home, text=".", command=lambda: insert_num(".")).place(relx=0.4,rely=0.7, anchor="center")
 Backspace = tk.Button(ATM_Home, text="<----", command=backspace).place(relx=0.6,rely=0.7, anchor="center")
 
 
+
+def insert_pin(text):
+    PinBox.insert(tk.INSERT, text)
+
+def backspace2():
+    index = int(TextBox.index(tk.INSERT))- 1
+    PinBox.delete(index)
+
+def insert_card(): 
+    #Check if card is in database
     
+    cardNum = TextBox.get()
+    InsertedCard = cardNum
+    
+    if (cardNum in card_nums) and (check_status(cardNum)):
+        
+        Welcome_Page.destroy()
+        Insert_Card.destroy()
+
+        CurrentUser = tk.Label(ATM_Home, text="Current User:"+InsertedCard) #Create a label widget
+        CurrentUser.place(relx=0.75,rely=0.125, anchor="center")
+        
+        Pin_Page = tk.Label(ATM_Home, text="Please enter PIN") #Create a label widget
+        Pin_Page.place(relx=0.5,rely=0.125, anchor="center")
+
+        Enter_Pin = tk.Button(ATM_Home, text="Enter", command=lambda: check_pin(InsertedCard, TextBox.get()))
+        Enter_Pin.place(relx=0.75,rely=0.825)
+
+    else:
+        tk.messagebox.showinfo("Error", "The card number entered is either invalid or not active. Please enter another card number")
 
 
-Insert_Card = tk.Button(ATM_Home, text="Insert Card")
+
+Insert_Card = tk.Button(ATM_Home, text="Insert Card", command=lambda: insert_card())
 Insert_Card.place(relx=0.75,rely=0.825)
 
 
 
 ATM_Home.mainloop()
+
