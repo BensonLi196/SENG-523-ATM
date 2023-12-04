@@ -12,11 +12,11 @@ max_allowable_withdraw = 1000 #Maximum allowed for one withdrawal
 CurrentAccount = ["", "", False, 0]
 
 #The amount of bills in the ATM
-five_dollar_bills = 100
+five_dollar_bills = 0
 ten_dollar_bills = 100
 twenty_dollar_bills = 100
 fifty_dollar_bills = 100
-hundred_dollar_bills = 100
+hundred_dollar_bills = 0
 
 Total = (five_dollar_bills * 5) + (ten_dollar_bills * 10) + (twenty_dollar_bills * 20) + (fifty_dollar_bills & 50) + (hundred_dollar_bills * 100)  #Total amount of money in the ATM
 
@@ -103,17 +103,69 @@ def backspace2():
 def withdraw(amount):
 
     if(amount > 1000):
-        tk.messagebox.showinfo("Error", "Amount exceeds maximum withdrawal amount, please enter an amount less than $1000")
+        tk.messagebox.showinfo("Error", "Amount exceeds maximum single withdrawal amount, please enter an amount less than $1000")
         TextBox.delete(0, END)
 
     elif(amount % 5 != 0):
-        tk.messagebox.showinfo("Error", "ATM can only dispend $100, $50, $20 and $5 bills, please insert a valid amount")
+        tk.messagebox.showinfo("Error", "ATM can only dispend $100, $50, $20, $10 and $5 bills, please insert a valid amount")
         TextBox.delete(0, END)
 
     if(amount > CurrentAccount[3]):
+        # If amount exceeds the total amount of cash in the ATM
         if(amount > Total):
             tk.messagebox.showinfo("Error", "Sorry, amount exceeds current cash available within ATM")    
-        
+        else:
+            total = amount
+            Total - total
+
+            # Get number of $100 bills
+            num_of_100 = int(total/100)
+            if(hundred_dollar_bills - num_of_100 < 0):
+                num_of_100 = hundred_dollar_bills
+            else:
+                hundred_dollar_bills - num_of_100
+                total = total - 100*num_of_100
+
+            # Get number of $50 bills
+            num_of_50 = int(total/50)
+            if(fifty_dollar_bills - num_of_50 < 0):
+                num_of_50 = fifty_dollar_bills
+            else:
+                fifty_dollar_bills - num_of_50
+                total = total - 50*num_of_50
+
+            # Get number of $20 bills
+            num_of_20 = int(total/20)
+            if(twenty_dollar_bills - num_of_20 < 0):
+                num_of_20 = twenty_dollar_bills
+            else:
+                twenty_dollar_bills - num_of_20
+                total = total - 20*num_of_20
+
+            # Get number of $10 bills
+            num_of_10 = int(total/10)
+            if(ten_dollar_bills - num_of_10 < 0):
+                num_of_10 = ten_dollar_bills
+            else:
+                ten_dollar_bills - num_of_10
+                total = total - 10*num_of_10
+
+            # Get number of $5 bills
+            num_of_5 = int(total/5)
+            if(five_dollar_bills - num_of_5 < 0):
+                num_of_5 = five_dollar_bills
+            else:
+                five_dollar_bills - num_of_5
+                total = total - 5*num_of_5
+            
+            # If the ATM lacks enough of certain bills
+            if(total != 0):
+                notEnough = "ATM is missing certain bills, could only dispense %d" % (amount - total)
+                tk.messagebox.showinfo("Warning", notEnough)
+
+            dispensedAmount = "ATM dispensed: %d $100 bills, %d $50 bills, %d $20 blills, %d $10 bills and %d $5 bils" % (num_of_100, num_of_50, num_of_20, num_of_10, num_of_5)
+            tk.messagebox.showinfo("Dispensed", dispensedAmount)
+            
     else: 
         tk.messagebox.showinfo("Error", "Amount exceeds your balance")
         TextBox.delete(0, END)
