@@ -39,6 +39,7 @@ def check_status(card_num):
 
 def check_pin(card_num, PIN):
     i = 0
+    global CurrentAccount
     while i < len(cards):
         if card_num == cards[i][0]:
             if PIN == cards[i][1]:
